@@ -27,7 +27,7 @@ O frontend em Python fará chamadas de sistema (subprocess) para o executável g
 
 ## Check-list de Desenvolvimento
 - [X] Configuração do repositório e planejamento inicial (README).
-- [ ] Coleta, filtragem e limpeza da base de dados do DF (.csv).
+- [X] Coleta, filtragem e limpeza da base de dados do DF (.csv).
 - [ ] `main.c`: Definição da Struct e leitura do arquivo CSV.
 - [ ] `backend`: Implementação da Tabela Hash (Busca por CEP).
 - [ ] `backend`: Implementação da Busca Binária (Busca por Rua).
