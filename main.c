@@ -1,16 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// estrtura base (inicial) do T1
-
-typedef struct {
-    char cep[10];
-    char rua[100];
-    char bairro[50];
-    char cidade[50];
-    char uf[3];
-} Endereco;
+#include <main.h>
+#include <hash.h>
+#include <binaria.h>
 
 int main() {
     // Talvez seja necessário ajustar caminho
