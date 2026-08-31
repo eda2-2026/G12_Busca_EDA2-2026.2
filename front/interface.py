@@ -22,4 +22,16 @@ rb_cep.pack(side=tk.LEFT, padx=10)
 rb_rua = tk.Radiobutton(frame_seletor, text="Busca por Rua (Binária)", variable=var_tipo_busca, value="rua")
 rb_rua.pack(side=tk.LEFT, padx=10)
 
+# Input da Busca
+frame_busca = tk.Frame(janela)
+frame_busca.pack(pady=10)
+
+tk.Label(frame_busca, text="Digite o termo:").pack(side=tk.LEFT, padx=5)
+entrada_busca = tk.Entry(frame_busca, width=20)
+entrada_busca.pack(side=tk.LEFT)
+
+# Botão de Busca
+botao_buscar = tk.Button(janela, text="Buscar", command=buscar_endereco, bg="lightblue")
+botao_buscar.pack(pady=10)
+
 janela.mainloop()
