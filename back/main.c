@@ -3,13 +3,14 @@
 #include <string.h>
 #include "main.h"
 #include "BuscaHash/hash.h"
+#include "BuscaBinaria/binaria.h"
 
-void carregarDadosCSV(TabelaHash tabela, const char* caminhoArquivo) {
+int carregarDadosCSV(TabelaHash tabela, ArrayEnderecos* arrayBinario, const char* caminhoArquivo) {
 
     FILE* arquivo = fopen(caminhoArquivo, "r");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo CSV!\n");
-        return;
+        fprintf(stderr, "Erro ao abrir o arquivo CSV: %s\n", caminhoArquivo);
+        return 0;
     }
 
     char linha[512]; 
@@ -18,22 +19,23 @@ void carregarDadosCSV(TabelaHash tabela, const char* caminhoArquivo) {
 
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         
-        linha[strcspn(linha, "\n")] = '\0';
+        linha[strcspn(linha, "\r\n")] = '\0';
+        memset(&endereco, 0, sizeof(Endereco));
 
         char* linha_ptr = linha;
         char* token;
         
         token = strsep(&linha_ptr, ",");
-        if (token != NULL) strcpy(endereco.cep, token);
+        if (token != NULL) snprintf(endereco.cep, sizeof(endereco.cep), "%s", token);
         
         token = strsep(&linha_ptr, ",");
-        if (token != NULL) strcpy(endereco.rua, token);
+        if (token != NULL) snprintf(endereco.rua, sizeof(endereco.rua), "%s", token);
         
         token = strsep(&linha_ptr, ",");
-        if (token != NULL) strcpy(endereco.complemento, token); 
+        if (token != NULL) snprintf(endereco.complemento, sizeof(endereco.complemento), "%s", token); 
         
         token = strsep(&linha_ptr, ",");
-        if (token != NULL) strcpy(endereco.bairro, token);
+        if (token != NULL) snprintf(endereco.bairro, sizeof(endereco.bairro), "%s", token);
         
         token = strsep(&linha_ptr, ",");
         if (token != NULL) endereco.id_cidade = atoi(token);
@@ -41,45 +43,72 @@ void carregarDadosCSV(TabelaHash tabela, const char* caminhoArquivo) {
         token = strsep(&linha_ptr, ",");
         if (token != NULL) endereco.id_uf = atoi(token);
 
-        inserirHash(tabela, endereco);
+        if (tabela != NULL) inserirHash(tabela, endereco);
+        if (arrayBinario != NULL) inserirArray(arrayBinario, endereco);
 
     }
 
     fclose(arquivo);
+    return 1;
 }
 
-int main(int argc, char *argv[]) {
-
-    if (argc < 3) {
-        printf("Erro: Parametros insuficientes.\n");
-        return 1;
-    }
-
-    char* tipoBusca = argv[1];
-    char* valorBusca = argv[2];
+int main(void) {
 
     TabelaHash tabela;
     inicializarTabela(tabela);
-    carregarDadosCSV(tabela, "back/ceps/ceps_df.csv");
 
-    if (strcmp(tipoBusca, "cep") == 0) {
-        int iteracoes = 0;
-        Endereco* resultado = buscarHash(tabela, valorBusca, &iteracoes);
+    ArrayEnderecos arrayBinario;
+    inicializarArray(&arrayBinario);
 
-        if (resultado != NULL) {
-            printf("CEP: %s\n", resultado->cep);
-            printf("Rua: %s\n", resultado->rua);
-            printf("Bairro: %s\n", resultado->bairro);
-            printf("Complemento: %s\n", resultado->complemento);
-            printf("Comparacoes: %d\n", iteracoes);
-        } else {
-            printf("CEP nao encontrado.\n");
-        }
-    } else if (strcmp(tipoBusca, "rua") == 0) {
-        printf("Busca por rua nao implementada.\n");
-    } else {
-        printf("Tipo de busca invalido. Use 'cep' ou 'rua'.\n");
+    if (!carregarDadosCSV(tabela, &arrayBinario, "ceps/ceps_df.csv")) {
+        liberarTabela(tabela);
+        liberarArray(&arrayBinario);
+        return EXIT_FAILURE;
     }
+
+    printf("Ordenando os dados para a busca binária...\n");
+    ordenarArray(&arrayBinario);
+    printf("Dados carregados e ordenados.\n");
+
+    Endereco endereco;
+
+    printf("Digite o CEP para buscar: \n");
+    if (scanf("%8s", endereco.cep) != 1) {
+        fprintf(stderr, "Entrada inválida.\n");
+        liberarTabela(tabela);
+        liberarArray(&arrayBinario);
+        return EXIT_FAILURE;
+    }
+
+    int comparacoesHash = 0;
+    int comparacoesBinaria = 0;
+
+    Endereco* resultadoHash = buscarHash(tabela, endereco.cep, &comparacoesHash);
+    Endereco* resultadoBinario = buscarBinaria(&arrayBinario, endereco.cep, &comparacoesBinaria);
+    
+    if (resultadoHash != NULL || resultadoBinario != NULL) {
+        printf("\nEncontrado: \n"
+            "CEP: %s\n"
+            "Rua: %s\n"
+            "Bairro: %s\n"
+            "Complemento: %s\n"
+            "ID Cidade: %d\n"
+            "ID UF: %d\n"
+            "Número de interações na Hash: %d\n"
+            "Número de interações na Binária: %d\n",
+            (resultadoHash != NULL ? resultadoHash->cep : resultadoBinario->cep),
+            (resultadoHash != NULL ? resultadoHash->rua : resultadoBinario->rua),
+            (resultadoHash != NULL ? resultadoHash->bairro : resultadoBinario->bairro),
+            (resultadoHash != NULL ? resultadoHash->complemento : resultadoBinario->complemento),
+            (resultadoHash != NULL ? resultadoHash->id_cidade : resultadoBinario->id_cidade),
+            (resultadoHash != NULL ? resultadoHash->id_uf : resultadoBinario->id_uf),
+            comparacoesHash, comparacoesBinaria);
+    } else {
+        printf("\nCEP nao encontrado.\n");
+    }
+
+    liberarTabela(tabela);
+    liberarArray(&arrayBinario);
 
     return 0;
 }

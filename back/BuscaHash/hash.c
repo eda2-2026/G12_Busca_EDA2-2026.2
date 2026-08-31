@@ -21,7 +21,7 @@ unsigned long calcularHash(const char *cep) {
     return hash % TAMANHO_TABELA;
 }
 
-void inserirHash(TabelaHash tabela, Endereco endereco) {
+int inserirHash(TabelaHash tabela, Endereco endereco) {
     
     unsigned long indice = calcularHash(endereco.cep);
 
@@ -29,12 +29,14 @@ void inserirHash(TabelaHash tabela, Endereco endereco) {
     
     if (novoNo == NULL) {
         fprintf(stderr, "Erro ao alocar memória para novo nó da tabela hash.\n");
-        exit(EXIT_FAILURE);
+        return 0;
     }
 
     novoNo->info = endereco;
     novoNo->prox = tabela[indice];
     tabela[indice] = novoNo;
+
+    return 1;
 }
 
 Endereco* buscarHash(TabelaHash tabela, const char *cep, int* comparacoes) {
@@ -60,4 +62,16 @@ Endereco* buscarHash(TabelaHash tabela, const char *cep, int* comparacoes) {
     }
 
     return NULL; 
+}
+
+void liberarTabela(TabelaHash tabela) {
+    for (int i = 0; i < TAMANHO_TABELA; i++) {
+        NoHash *atual = tabela[i];
+        while (atual != NULL) {
+            NoHash *prox = atual->prox;
+            free(atual);
+            atual = prox;
+        }
+        tabela[i] = NULL;
+    }
 }

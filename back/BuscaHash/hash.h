@@ -14,8 +14,10 @@ void inicializarTabela(TabelaHash tabela);
 
 unsigned long calcularHash(const char *cep);
 
-void inserirHash(TabelaHash tabela, Endereco endereco);
+int inserirHash(TabelaHash tabela, Endereco endereco);
 
 Endereco* buscarHash(TabelaHash tabela, const char *cep, int* comparacoes);
+
+void liberarTabela(TabelaHash tabela);
 
 #endif
