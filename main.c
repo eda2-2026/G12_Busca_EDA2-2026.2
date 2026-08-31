@@ -1,35 +1,95 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "main.h"
+#include "BuscaHash/hash.h"
 
-// estrtura base (inicial) do T1
+int carregarDadosCSV(TabelaHash tabela, const char* caminhoArquivo) {
 
-typedef struct {
-    char cep[10];
-    char rua[100];
-    char bairro[50];
-    char cidade[50];
-    char uf[3];
-} Endereco;
+    FILE* arquivo = fopen(caminhoArquivo, "r");
+    if (arquivo == NULL) {
+        fprintf(stderr, "Erro ao abrir o arquivo CSV: %s\n", caminhoArquivo);
+        return 0;
+    }
 
-int main() {
-    // Talvez seja necessário ajustar caminho
-    FILE *file = fopen("ceps/ceps_df.csv", "r");
+    char linha[512]; 
     
-    if (file == NULL) {
-        printf("Erro: Nao foi possivel abrir o arquivo ceps/ceps_df.csv\n");
-        return 1;
+    Endereco endereco;
+
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        
+        linha[strcspn(linha, "\r\n")] = '\0';
+        memset(&endereco, 0, sizeof(Endereco));
+
+        char* linha_ptr = linha;
+        char* token;
+        
+        token = strsep(&linha_ptr, ",");
+        if (token != NULL) snprintf(endereco.cep, sizeof(endereco.cep), "%s", token);
+        
+        token = strsep(&linha_ptr, ",");
+        if (token != NULL) snprintf(endereco.rua, sizeof(endereco.rua), "%s", token);
+        
+        token = strsep(&linha_ptr, ",");
+        if (token != NULL) snprintf(endereco.complemento, sizeof(endereco.complemento), "%s", token); 
+        
+        token = strsep(&linha_ptr, ",");
+        if (token != NULL) snprintf(endereco.bairro, sizeof(endereco.bairro), "%s", token);
+        
+        token = strsep(&linha_ptr, ",");
+        if (token != NULL) endereco.id_cidade = atoi(token);
+        
+        token = strsep(&linha_ptr, ",");
+        if (token != NULL) endereco.id_uf = atoi(token);
+
+        inserirHash(tabela, endereco);
+
     }
 
-    char linha[256];
-    int contador = 0;
+    fclose(arquivo);
+    return 1;
+}
 
-    while (fgets(linha, sizeof(linha), file)) {
-        contador++;
+int main(void) {
+
+    TabelaHash tabela;
+    inicializarTabela(tabela);
+
+    if (!carregarDadosCSV(tabela, "ceps/ceps_df.csv")) {
+        liberarTabela(tabela);
+        return EXIT_FAILURE;
     }
 
-    printf("Sucesso! O sistema carregou %d enderecos do DF.\n", contador);
+    printf("Dados carregados.\n");
+    
+    Endereco endereco;
 
-    fclose(file);
+    printf("Digite o CEP para buscar: \n");
+    if (scanf("%8s", endereco.cep) != 1) {
+        fprintf(stderr, "Entrada inválida.\n");
+        liberarTabela(tabela);
+        return EXIT_FAILURE;
+    }
+
+    int comparacoes = 0;
+
+    Endereco* resultado = buscarHash(tabela, endereco.cep, &comparacoes);
+    
+    if (resultado != NULL) {
+        printf("Encontrado: \n"
+            "CEP: %s\n"
+            "Rua: %s\n"
+            "Bairro: %s\n"
+            "Complemento: %s\n"
+            "ID Cidade: %d\n"
+            "ID UF: %d\n"
+            "Número de comparações: %d\n",
+            resultado->cep, resultado->rua, resultado->bairro, resultado->complemento, resultado->id_cidade, resultado->id_uf, comparacoes);
+    } else {
+        printf("CEP nao encontrado.\n");
+    }
+
+    liberarTabela(tabela);
+
     return 0;
 }
