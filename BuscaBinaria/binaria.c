@@ -3,7 +3,6 @@
 #include <string.h>
 #include "binaria.h"
 
-// Inicializa o array dinâmico com capacidade inicial de 1000
 void inicializarArray(ArrayEnderecos* arr) {
     arr->capacidade = 1000;
     arr->tamanho = 0;
@@ -15,7 +14,6 @@ void inicializarArray(ArrayEnderecos* arr) {
     }
 }
 
-// Insere um endereço, dobrando a capacidade se faltar espaço
 void inserirArray(ArrayEnderecos* arr, Endereco endereco) {
     if (arr->tamanho >= arr->capacidade) {
         arr->capacidade *= 2;
@@ -31,20 +29,24 @@ void inserirArray(ArrayEnderecos* arr, Endereco endereco) {
     arr->enderecos[arr->tamanho++] = endereco;
 }
 
-// Função auxiliar exigida pelo qsort para saber como comparar dois Endereços
 int compararEnderecos(const void* a, const void* b) {
     Endereco* endA = (Endereco*)a;
     Endereco* endB = (Endereco*)b;
     return strcmp(endA->cep, endB->cep);
 }
 
-// Ordena todos os endereços do vetor crescentemente pelo CEP
 void ordenarArray(ArrayEnderecos* arr) {
     qsort(arr->enderecos, arr->tamanho, sizeof(Endereco), compararEnderecos);
 }
 
-// A busca binária clássica, com contador de interações
 Endereco* buscarBinaria(ArrayEnderecos* arr, const char* cep, int* iteracoes) {
+    if (arr == NULL || cep == NULL || arr->enderecos == NULL || arr->tamanho <= 0) {
+        if (iteracoes != NULL) {
+            *iteracoes = 0;
+        }
+        return NULL;
+    }
+
     int inicio = 0;
     int fim = arr->tamanho - 1;
     
@@ -63,16 +65,15 @@ Endereco* buscarBinaria(ArrayEnderecos* arr, const char* cep, int* iteracoes) {
         if (cmp == 0) {
             return &(arr->enderecos[meio]); // Achou
         } else if (cmp < 0) {
-            inicio = meio + 1; // O CEP procurado é maior, vai pra metade superior
+            inicio = meio + 1;
         } else {
-            fim = meio - 1;    // O CEP procurado é menor, vai pra metade inferior
+            fim = meio - 1;
         }
     }
 
-    return NULL; // CEP não encontrado
+    return NULL;
 }
 
-// Libera a memória alocada
 void liberarArray(ArrayEnderecos* arr) {
     if (arr->enderecos != NULL) {
         free(arr->enderecos);
