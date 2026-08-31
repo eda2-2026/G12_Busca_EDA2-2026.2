@@ -60,7 +60,6 @@ int main(void) {
     ArrayEnderecos arrayBinario;
     inicializarArray(&arrayBinario);
 
-    // Carrega tudo
     if (!carregarDadosCSV(tabela, &arrayBinario, "ceps/ceps_df.csv")) {
         liberarTabela(tabela);
         liberarArray(&arrayBinario);
@@ -84,11 +83,10 @@ int main(void) {
     int comparacoesHash = 0;
     int comparacoesBinaria = 0;
 
-    // Roda ambas as buscas para que vocês possam testar e ver as interações
-    Endereco* resultado = buscarHash(tabela, endereco.cep, &comparacoesHash);
-    buscarBinaria(&arrayBinario, endereco.cep, &comparacoesBinaria);
+    Endereco* resultadoHash = buscarHash(tabela, endereco.cep, &comparacoesHash);
+    Endereco* resultadoBinario = buscarBinaria(&arrayBinario, endereco.cep, &comparacoesBinaria);
     
-    if (resultado != NULL) {
+    if (resultadoHash != NULL || resultadoBinario != NULL) {
         printf("\nEncontrado: \n"
             "CEP: %s\n"
             "Rua: %s\n"
@@ -98,8 +96,13 @@ int main(void) {
             "ID UF: %d\n"
             "Número de interações na Hash: %d\n"
             "Número de interações na Binária: %d\n",
-            resultado->cep, resultado->rua, resultado->bairro, resultado->complemento, 
-            resultado->id_cidade, resultado->id_uf, comparacoesHash, comparacoesBinaria);
+            (resultadoHash != NULL ? resultadoHash->cep : resultadoBinario->cep),
+            (resultadoHash != NULL ? resultadoHash->rua : resultadoBinario->rua),
+            (resultadoHash != NULL ? resultadoHash->bairro : resultadoBinario->bairro),
+            (resultadoHash != NULL ? resultadoHash->complemento : resultadoBinario->complemento),
+            (resultadoHash != NULL ? resultadoHash->id_cidade : resultadoBinario->id_cidade),
+            (resultadoHash != NULL ? resultadoHash->id_uf : resultadoBinario->id_uf),
+            comparacoesHash, comparacoesBinaria);
     } else {
         printf("\nCEP nao encontrado.\n");
     }
