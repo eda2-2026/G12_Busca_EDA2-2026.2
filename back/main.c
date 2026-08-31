@@ -52,7 +52,15 @@ int carregarDadosCSV(TabelaHash tabela, ArrayEnderecos* arrayBinario, const char
     return 1;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+
+    if (argc < 3) {
+        printf("Erro: Parametros insuficientes.\n");
+        return EXIT_FAILURE;
+    }
+
+    char* tipoBusca = argv[1];
+    char* termoBusca = argv[2];
 
     TabelaHash tabela;
     inicializarTabela(tabela);
@@ -60,51 +68,42 @@ int main(void) {
     ArrayEnderecos arrayBinario;
     inicializarArray(&arrayBinario);
 
-    if (!carregarDadosCSV(tabela, &arrayBinario, "ceps/ceps_df.csv")) {
+    if (!carregarDadosCSV(tabela, &arrayBinario, "back/ceps/ceps_df.csv")) {
         liberarTabela(tabela);
         liberarArray(&arrayBinario);
         return EXIT_FAILURE;
     }
 
-    printf("Ordenando os dados para a busca binária...\n");
     ordenarArray(&arrayBinario);
-    printf("Dados carregados e ordenados.\n");
 
-    Endereco endereco;
+    int comparacoes = 0;
+    Endereco* resultado = NULL;
 
-    printf("Digite o CEP para buscar: \n");
-    if (scanf("%8s", endereco.cep) != 1) {
-        fprintf(stderr, "Entrada inválida.\n");
-        liberarTabela(tabela);
-        liberarArray(&arrayBinario);
-        return EXIT_FAILURE;
+    if (strcmp(tipoBusca, "cep") == 0) {
+        resultado = buscarHash(tabela, termoBusca, &comparacoes);
+    } 
+    else if (strcmp(tipoBusca, "rua") == 0) {
+        resultado = buscarBinaria(&arrayBinario, termoBusca, &comparacoes);
     }
 
-    int comparacoesHash = 0;
-    int comparacoesBinaria = 0;
-
-    Endereco* resultadoHash = buscarHash(tabela, endereco.cep, &comparacoesHash);
-    Endereco* resultadoBinario = buscarBinaria(&arrayBinario, endereco.cep, &comparacoesBinaria);
-    
-    if (resultadoHash != NULL || resultadoBinario != NULL) {
-        printf("\nEncontrado: \n"
-            "CEP: %s\n"
-            "Rua: %s\n"
-            "Bairro: %s\n"
-            "Complemento: %s\n"
-            "ID Cidade: %d\n"
-            "ID UF: %d\n"
-            "Número de interações na Hash: %d\n"
-            "Número de interações na Binária: %d\n",
-            (resultadoHash != NULL ? resultadoHash->cep : resultadoBinario->cep),
-            (resultadoHash != NULL ? resultadoHash->rua : resultadoBinario->rua),
-            (resultadoHash != NULL ? resultadoHash->bairro : resultadoBinario->bairro),
-            (resultadoHash != NULL ? resultadoHash->complemento : resultadoBinario->complemento),
-            (resultadoHash != NULL ? resultadoHash->id_cidade : resultadoBinario->id_cidade),
-            (resultadoHash != NULL ? resultadoHash->id_uf : resultadoBinario->id_uf),
-            comparacoesHash, comparacoesBinaria);
+    if (resultado != NULL) {
+        printf("Encontrado:\n"
+               "CEP: %s\n"
+               "Rua: %s\n"
+               "Bairro: %s\n"
+               "Complemento: %s\n"
+               "ID Cidade: %d\n"
+               "ID UF: %d\n"
+               "Comparacoes: %d\n",
+               resultado->cep,
+               resultado->rua,
+               resultado->bairro,
+               resultado->complemento,
+               resultado->id_cidade,
+               resultado->id_uf,
+               comparacoes);
     } else {
-        printf("\nCEP nao encontrado.\n");
+        printf("Nenhum endereco encontrado.\n");
     }
 
     liberarTabela(tabela);
