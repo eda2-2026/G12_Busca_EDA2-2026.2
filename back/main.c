@@ -50,34 +50,35 @@ void carregarDadosCSV(TabelaHash tabela, const char* caminhoArquivo) {
 
 int main(int argc, char *argv[]) {
 
+    if (argc < 3) {
+        printf("Erro: Parametros insuficientes.\n");
+        return 1;
+    }
+
+    char* tipoBusca = argv[1];
+    char* valorBusca = argv[2];
+
     TabelaHash tabela;
     inicializarTabela(tabela);
+    carregarDadosCSV(tabela, "back/ceps/ceps_df.csv");
 
-    carregarDadosCSV(tabela, "ceps/ceps_df.csv");
+    if (strcmp(tipoBusca, "cep") == 0) {
+        int iteracoes = 0;
+        Endereco* resultado = buscarHash(tabela, valorBusca, &iteracoes);
 
-    printf("Dados carregados.\n");
-    
-    Endereco endereco;
-
-    printf("Digite o CEP para buscar: \n");
-    scanf("%s", endereco.cep);
-
-    int comparacoes = 0;
-
-    Endereco* resultado = buscarHash(tabela, endereco.cep, &comparacoes);
-    
-    if (resultado != NULL) {
-        printf("Encontrado: \n"
-            "CEP: %s\n"
-            "Rua: %s\n"
-            "Bairro: %s\n"
-            "Complemento: %s\n"
-            "ID Cidade: %d\n"
-            "ID UF: %d\n"
-            "Número de comparações: %d\n",
-            resultado->cep, resultado->rua, resultado->bairro, resultado->complemento, resultado->id_cidade, resultado->id_uf, comparacoes);
+        if (resultado != NULL) {
+            printf("CEP: %s\n", resultado->cep);
+            printf("Rua: %s\n", resultado->rua);
+            printf("Bairro: %s\n", resultado->bairro);
+            printf("Complemento: %s\n", resultado->complemento);
+            printf("Comparacoes: %d\n", iteracoes);
+        } else {
+            printf("CEP nao encontrado.\n");
+        }
+    } else if (strcmp(tipoBusca, "rua") == 0) {
+        printf("Busca por rua nao implementada.\n");
     } else {
-        printf("CEP nao encontrado.\n");
+        printf("Tipo de busca invalido. Use 'cep' ou 'rua'.\n");
     }
 
     return 0;
