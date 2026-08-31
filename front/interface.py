@@ -64,7 +64,7 @@ var_tipo_busca = tk.StringVar(value="cep")
 rb_cep = tk.Radiobutton(frame_seletor, text="Busca por CEP (Hash)", variable=var_tipo_busca, value="cep")
 rb_cep.pack(side=tk.LEFT, padx=10)
 
-rb_rua = tk.Radiobutton(frame_seletor, text="Busca por Rua (Binária)", variable=var_tipo_busca, value="rua")
+rb_rua = tk.Radiobutton(frame_seletor, text="Busca por CEP (Binária)", variable=var_tipo_busca, value="rua")
 rb_rua.pack(side=tk.LEFT, padx=10)
 
 # Input da Busca
