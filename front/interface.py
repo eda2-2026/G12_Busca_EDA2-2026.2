@@ -1,7 +1,53 @@
 import tkinter as tk
 from tkinter import messagebox
 import subprocess
+import sys
 
+def compilar_backend():
+    """Compila o código C automaticamente ao abrir a interface."""
+    print("Compilando o backend em C...")
+    try:
+        comando = [
+            "gcc", 
+            "back/main.c", 
+            "back/BuscaHash/hash.c", 
+            "back/BuscaBinaria/binaria.c", 
+            "-o", 
+            "main.out"
+        ]
+        
+        resultado = subprocess.run(comando, capture_output=True, text=True, check=True)
+        print("Backend compilado com sucesso!\n")
+        
+    except subprocess.CalledProcessError as e:
+        print("ERRO DE COMPILAÇÃO NO C:\n")
+        print(e.stderr)
+        sys.exit(1)
+
+def buscar_endereco():
+    termo_digitado = entrada_busca.get().strip()
+    tipo_busca = var_tipo_busca.get()
+    
+    if not termo_digitado:
+        messagebox.showwarning("Aviso", "Por favor, digite um termo para busca.")
+        return
+    
+    try:
+        resultado = subprocess.run(
+            ["./main.out", tipo_busca, termo_digitado],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        label_resultado.config(text=resultado.stdout.strip())
+        
+    except Exception as e:
+        messagebox.showerror("Erro", f"Falha ao executar o backend em C:\n{e}")
+
+compilar_backend()
+
+# Configuração da Janela Principal
 janela = tk.Tk()
 janela.title("Busca de Endereços DF")
 janela.geometry("450x450")
@@ -10,7 +56,6 @@ janela.configure(padx=20, pady=20)
 titulo = tk.Label(janela, text="Sistema de Logística - DF", font=("Arial", 16, "bold"))
 titulo.pack(pady=10)
 
-# Selecionar o tipo de busca
 frame_seletor = tk.Frame(janela)
 frame_seletor.pack(pady=5)
 
