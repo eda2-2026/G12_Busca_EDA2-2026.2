@@ -36,3 +36,18 @@ void inserirHash(TabelaHash tabela, Endereco endereco) {
     novoNo->prox = tabela[indice];
     tabela[indice] = novoNo;
 }
+
+Endereco* buscarHash(TabelaHash tabela, const char *cep) {
+    
+    unsigned long indice = calcularHash(cep);
+    NoHash *atual = tabela[indice];
+
+    while (atual != NULL) {
+        if (strcmp(atual->info.cep, cep) == 0) {
+            return &(atual->info);
+        }
+        atual = atual->prox;
+    }
+
+    return NULL; 
+}

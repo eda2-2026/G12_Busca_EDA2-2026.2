@@ -16,4 +16,6 @@ unsigned long calcularHash(const char *cep);
 
 void inserirHash(TabelaHash tabela, Endereco endereco);
 
+Endereco* buscarHash(TabelaHash tabela, const char *cep);
+
 #endif
