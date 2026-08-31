@@ -62,7 +62,9 @@ int main(int argc, char *argv[]) {
     printf("Digite o CEP para buscar: \n");
     scanf("%s", endereco.cep);
 
-    Endereco* resultado = buscarHash(tabela, endereco.cep);
+    int comparacoes = 0;
+
+    Endereco* resultado = buscarHash(tabela, endereco.cep, &comparacoes);
     
     if (resultado != NULL) {
         printf("Encontrado: \n"
@@ -71,8 +73,9 @@ int main(int argc, char *argv[]) {
             "Bairro: %s\n"
             "Complemento: %s\n"
             "ID Cidade: %d\n"
-            "ID UF: %d\n", 
-            resultado->cep, resultado->rua, resultado->bairro, resultado->complemento, resultado->id_cidade, resultado->id_uf);
+            "ID UF: %d\n"
+            "Número de comparações: %d\n",
+            resultado->cep, resultado->rua, resultado->bairro, resultado->complemento, resultado->id_cidade, resultado->id_uf, comparacoes);
     } else {
         printf("CEP nao encontrado.\n");
     }
