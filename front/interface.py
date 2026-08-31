@@ -34,4 +34,8 @@ entrada_busca.pack(side=tk.LEFT)
 botao_buscar = tk.Button(janela, text="Buscar", command=buscar_endereco, bg="lightblue")
 botao_buscar.pack(pady=10)
 
+# Área de Resultados
+label_resultado = tk.Label(janela, text="", justify=tk.LEFT, font=("Courier", 10), bg="#f0f0f0", width=50, height=12, anchor="nw")
+label_resultado.pack(pady=10)
+
 janela.mainloop()
