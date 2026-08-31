@@ -8,3 +8,15 @@ void inicializarTabela(TabelaHash tabela) {
         tabela[i] = NULL;
     }
 }
+
+unsigned long calcularHash(const char *cep) {
+    
+    unsigned long hash = 5381;
+    int caractere;
+
+    while ((caractere = *cep++)) {
+        hash = hash * 33 + caractere;
+    }
+
+    return hash % TAMANHO_TABELA;
+}

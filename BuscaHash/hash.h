@@ -12,4 +12,6 @@ typedef  NoHash* TabelaHash[TAMANHO_TABELA];
 
 void inicializarTabela(TabelaHash tabela);
 
+unsigned long calcularHash(const char *cep);
+
 #endif
