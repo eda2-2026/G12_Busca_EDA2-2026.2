@@ -1,6 +1,7 @@
-// Definições e Estruturas Globais
+#ifndef MAIN_H
+#define MAIN_H
 
-typedef struct {
+typedef struct Endereco {
     char cep[9]; 
     char rua[100];
     char complemento[100];
@@ -8,3 +9,5 @@ typedef struct {
     int id_cidade;         
     int id_uf;             
 } Endereco;
+
+#endif
