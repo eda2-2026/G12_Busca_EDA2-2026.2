@@ -1,9 +1,10 @@
 // Definições e Estruturas Globais
 
 typedef struct {
-    char cep[10];
+    char cep[9]; 
     char rua[100];
+    char complemento[100];
     char bairro[50];
-    char cidade[50];
-    char uf[3];
+    int id_cidade;         
+    int id_uf;             
 } Endereco;
